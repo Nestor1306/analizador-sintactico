@@ -1,22 +1,22 @@
 # analizador-sintactico
 
-A Clojure library designed to ... well, that part is up to you.
+Un analizador sintactico hecho en Clojure
 
-## Usage
+# Integrantes
 
-FIXME
+-Emiliano Garcia
+-Nestor Huidobro
+-Alexis Alva
 
-## License
+# Como correrlo
 
-Copyright © 2026 FIXME
+Estando en la carpeta del proyecto, ejecuta:
 
-This program and the accompanying materials are made available under the
-terms of the Eclipse Public License 2.0 which is available at
-https://www.eclipse.org/legal/epl-2.0.
+#!/bin/bash
+lein run resources/sample/<nombre_del_texto.txt>
 
-This Source Code may also be made available under the following Secondary
-Licenses when the conditions for such availability set forth in the Eclipse
-Public License, v. 2.0 are satisfied: GNU General Public License as published by
-the Free Software Foundation, either version 2 of the License, or (at your
-option) any later version, with the GNU Classpath Exception which is available
-at https://www.gnu.org/software/classpath/license.html.
+Esto creara un archivo HTML que despliega el texto resaltado por tokens y una alerta de eror en caso de presentar algun error.
+
+Corre el siguiente comando para abrir el archivo HTML inmediatamente:
+#!/bin/bash
+open <archivo_HTML.html>
