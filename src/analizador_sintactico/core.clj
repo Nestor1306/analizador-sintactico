@@ -17,7 +17,7 @@
 
 (defn -main [& args]
       (when (empty? args)
-            (println "Uso: lein run <archivo-entrada> [archivo-salida]")
+            (println "Faltan parametros")
             (System/exit 1))
       (let [input  (first args)
             output (or (second args) (str input ".html"))]

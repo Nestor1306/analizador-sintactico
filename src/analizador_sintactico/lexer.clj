@@ -32,7 +32,7 @@
    ;; Punctuation
    [:punctuation  #"^[(){};,]"]
    ;; Numbers — decimal before integer to avoid partial match
-   [:number       #"^\d+\.\d+"]
+   [:number       #"^\d+\.\d+"] ;ORDEN IMPORTA
    [:number       #"^\d+"]
    ;; Identifiers / keywords (start with letter, then letters+digits)
    [:identifier   #"^[a-zA-Z][a-zA-Z0-9]*"]])
@@ -59,7 +59,7 @@
        "Tries every pattern against the remaining source string.
         Returns [token-type matched-string] or nil."
        [source]
-       (some (fn [[ttype pattern]]
+       (some (fn [[ttype pattern]] ;Solo descomprime el par sin la sintaxis larga
                  (when-let [m (re-find pattern source)]
                            [ttype m]))
              token-patterns))
@@ -76,13 +76,9 @@
 ;; ─────────────────────────────────────────────
 
 (defn tokenize
-      "Scans `source` (a string) and returns a map:
-         {:tokens   [{:type … :value … :line … :col …} …]
-          :errors   [{:type :lex-error …} …]}
-
-       Whitespace (including newlines) is skipped and used only for
-       line/col tracking.  Unknown characters produce :lex-error entries
-       but scanning continues (error recovery)."
+      "Scanea el input source, que es un string, y regresa un mapa de la manera:
+        {:tokens   [{:type … :value … :line … :col …} …]
+        :errors   [{:type :lex-error …} …]}"
       [source]
       (loop [remaining source
              position  0
@@ -96,28 +92,29 @@
 
               (let [ch (first remaining)]
                    (cond
-                     ;; ── Newline ──────────────────────────────────────────────
+                     ; Salto de linea
                      (= ch \newline)
-                     (recur (subs remaining 1) (inc position)
+                     (recur (subs remaining 1) (inc position) ;Quita el primer elemento del string que en este momento es /n
                             (inc line) 1 tokens errors)
+                     ;Regresar a la primera columna y saltar de linea porque encontro un salto de linea
 
-                     ;; ── Other whitespace ─────────────────────────────────────
+                     ; Espacio en blanco
                      (Character/isWhitespace ch)
                      (recur (subs remaining 1) (inc position)
                             line (inc col) tokens errors)
 
-                     ;; ── Known token ──────────────────────────────────────────
+                     ; Token conocido
                      :else
                      (if-let [[raw-type lexeme] (try-match remaining)]
-                             (let [ttype (classify-identifier raw-type lexeme)
-                                   token {:type  ttype
+                             (let [type (classify-identifier raw-type lexeme)
+                                   token {:type  type
                                           :value lexeme
                                           :line  line
                                           :col   col}]
-                                  (recur (subs remaining (count lexeme))
+                                  (recur (subs remaining (count lexeme)) ;Solo se le resta la cantidad de caracteres que tiene el resultado
                                          (+ position (count lexeme))
                                          line (+ col (count lexeme))
-                                         (conj tokens token)
+                                         (conj tokens token) ; Lo agrega a la lista de tokens
                                          errors))
 
                              ;; ── Unknown character — record error, skip 1 char ─────
