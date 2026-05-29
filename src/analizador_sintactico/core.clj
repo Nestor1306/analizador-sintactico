@@ -1,19 +1,23 @@
 (ns analizador-sintactico.core
     (:require [analizador-sintactico.lexer :as lexer]
+              [analizador-sintactico.parser :as p]
       [analizador-sintactico.html-generator :as html-gen]
       [clojure.java.io :as io])
     (:gen-class))
 
 (defn process-file [input-path output-path]
-      (let [source     (slurp input-path)
-            filename   (.getName (io/file input-path))
-            resultado  (lexer/tokenize source)
-            tokens     (lexer/token-list resultado)
-            errors     (:errors resultado)
-            html       (html-gen/generate tokens errors filename)]
-           (spit output-path html)
-           (println (str "✓ Generado: " output-path))
-           resultado))
+  (let [source       (slurp input-path)
+        filename     (.getName (io/file input-path))
+        lex-result   (lexer/tokenize source)
+        tokens       (lexer/token-list lex-result)
+        lex-errors   (:errors lex-result)
+        parse-result (p/parse tokens)
+        parse-errors (:errors parse-result)
+        all-errors   (concat lex-errors parse-errors)
+        html         (html-gen/generate tokens all-errors filename)]
+    (spit output-path html)
+    (println (str "✓ Generado: " output-path))
+    {:lex lex-result :parse parse-result}))
 
 (defn -main [& args]
       (when (empty? args)

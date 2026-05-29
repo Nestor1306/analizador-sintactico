@@ -61,24 +61,28 @@
                             (conj result (token->span token) " ")
                             line))))))
 
+
+
 (defn generate [tokens errors filename]
-      (let [ok?       (empty? errors)
-            error-msg (when-not ok?
-                                (str "<div class=\"error-banner\">"
-                                     "&#9888; Error: "
-                                     (escape-html (:msg (first errors)))
-                                     "</div>"))
-            code-html (tokens->html tokens)]
-           (str "<!DOCTYPE html>\n"
-                "<html lang=\"es\">\n"
-                "<head>\n"
-                "  <meta charset=\"UTF-8\">\n"
-                "  <title>" (escape-html filename) "</title>\n"
-                (generate-css)
-                "\n</head>\n"
-                "<body>\n"
-                "  <h2 style=\"color:#569cd6;\">" (escape-html filename) "</h2>\n"
-                (or error-msg "")
-                "  <pre>" code-html "</pre>\n"
-                "</body>\n"
-                "</html>")))
+  (let [ok?       (empty? errors)
+        err       (first errors)
+        error-msg (when-not ok?
+                    (str "<div class=\"error-banner\">"
+                         "&#9888; Error en línea "
+                         (:line err) ", columna " (:col err) ": "
+                         (escape-html (:msg err))
+                         "</div>"))
+        code-html (tokens->html tokens)]
+    (str "<!DOCTYPE html>\n"
+         "<html lang=\"es\">\n"
+         "<head>\n"
+         "  <meta charset=\"UTF-8\">\n"
+         "  <title>" (escape-html filename) "</title>\n"
+         (generate-css)
+         "\n</head>\n"
+         "<body>\n"
+         "  <h2 style=\"color:#569cd6;\">" (escape-html filename) "</h2>\n"
+         (or error-msg "")
+         "  <pre>" code-html "</pre>\n"
+         "</body>\n"
+         "</html>")))

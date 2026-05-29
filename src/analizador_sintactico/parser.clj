@@ -79,6 +79,7 @@
          parse-comparison
          parse-addition
          parse-multiplication
+         statement-start?
          parse-primary)
 
 ;; ─────────────────────────────────────────────

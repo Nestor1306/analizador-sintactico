@@ -1,10 +1,10 @@
-while (boots > 7) {
+while (boots >  2) {
     while (76 < fall) {
         function would(laud, eyes) {
             var john = (would(repassd, moor, cause) * laud);
             var kindled = 71;
         }
-        function pray(participation) {
+        function pray(participation)
             var potable = (((10 * (98)) * 89) * (would));
         }
     }
