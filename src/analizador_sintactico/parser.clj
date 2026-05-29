@@ -85,13 +85,105 @@
 ;; Stubs temporales (los reemplazas uno por uno)
 ;; ─────────────────────────────────────────────
 
-(defn- parse-var-decl       [] (throw (Exception. "TODO parse-var-decl")))
-(defn- parse-assignment     [] (throw (Exception. "TODO parse-assignment")))
-(defn- parse-if             [] (throw (Exception. "TODO parse-if")))
-(defn- parse-while          [] (throw (Exception. "TODO parse-while")))
-(defn- parse-function       [] (throw (Exception. "TODO parse-function")))
-(defn- parse-return         [] (throw (Exception. "TODO parse-return")))
-(defn- parse-expression     [] (throw (Exception. "TODO parse-expression")))
+(defn- parse-var-decl
+  "V → v d = E
+   (el ';' final NO se pide aquí — lo pone parse-statement, regla T → V;)"
+  []
+  (expect :keyword    "var" "palabra reservada 'var'")
+  (expect :identifier        "nombre de la variable después de 'var'")
+  (expect :assignment        "signo '=' en la declaración")
+  (parse-expression))
+
+(defn- parse-expression []
+  (expect :number "numero")) ; Temporal
+
+(defn- parse-assignment []
+  (expect :identifier "un identificador")
+  (expect :assignment "un simbolo '=' en la asignacion")
+  (parse-expression))
+
+(defn- parse-if
+  "I → i ( E ) { L } Q
+   Q → e { L } | λ"
+  []
+  (expect :keyword     "if" "palabra reservada 'if'")
+  (expect :punctuation "("  "'(' después de 'if'")
+  (parse-expression)
+  (expect :punctuation ")"  "')' al cerrar la condición")
+  (expect :punctuation "{"  "'{' al iniciar el bloque if")
+  (parse-statement-list)
+  (expect :punctuation "}"  "'}' al cerrar el bloque if")
+
+  ;; else opcional
+  (when (match :keyword "else")
+    (expect :punctuation "{" "'{' al iniciar el bloque else")
+    (parse-statement-list)
+    (expect :punctuation "}" "'}' al cerrar el bloque else")))
+
+(defn- parse-while []
+  (expect :keyword "while")
+  (expect :punctuation "(" "( para abrir el condicional")
+  (parse-expression)
+  (expect :punctuation ")" ") para cerrar el condicional")
+  (expect :punctuation "{")
+  (parse-statement-list)
+  (expect :punctuation "}"))
+
+
+
+(defn- parse-return
+  "Parsea el return SIN consumir el ';' final.
+   El ';' lo pone parse-function-statement (regla C → X;)."
+  []
+  (expect :keyword "return" "palabra reservada 'return'")
+  ;; r E | r : si lo que sigue NO es ';', entonces hay expresión.
+  (when-not (check :punctuation ";")
+    (parse-expression)))
+
+
+
+(defn- function-statement-start?
+  "Igual que statement-start? pero también acepta 'return'."
+  []
+  (or (statement-start?)
+      (check :keyword "return")))
+
+
+(defn- parse-function-statement
+  "Mini-dispatcher para C: como parse-statement, pero agrega 'return'."
+  []
+  (cond
+    (check :keyword "return")
+    (do (parse-return)
+        (expect :punctuation ";" "';' al final del return"))
+
+    :else
+    (parse-statement)))
+
+(defn- parse-function-statement-list
+  "G → C G | C : 1 o más C."
+  []
+  (parse-function-statement)
+  (while (function-statement-start?)
+    (parse-function-statement)))
+
+
+(defn- parse-function
+  []
+  (expect :keyword     "function" "palabra reservada 'function'")
+  (expect :identifier              "nombre de la función")
+  (expect :punctuation "("         "'(' al iniciar parámetros")
+  ;; P → R | λ : la lista de params es opcional
+  (when (match :identifier)
+    ;; ya consumimos el primer identifier; ahora 0+ comas + ident
+    (while (match :punctuation ",")
+      (expect :identifier "nombre de parámetro después de ','")))
+  (expect :punctuation ")" "')' al cerrar parámetros")
+  (expect :punctuation "{" "'{' al iniciar cuerpo de la función")
+  (parse-function-statement-list)
+  (expect :punctuation "}" "'}' al cerrar cuerpo de la función"))
+
+
 (defn- parse-comparison     [] (throw (Exception. "TODO parse-comparison")))
 (defn- parse-addition       [] (throw (Exception. "TODO parse-addition")))
 (defn- parse-multiplication [] (throw (Exception. "TODO parse-multiplication")))
