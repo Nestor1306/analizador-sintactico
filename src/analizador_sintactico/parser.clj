@@ -1,7 +1,7 @@
-(ns analizador-sintactico.parser
-  (:require [analizador-sintactico.lexer :as lexer]))
+(ns analizador-sintactico.parser)
 
 ;; Estado del parser
+;; Se decidio usar atoms por su ventaja con threads en Clojure
 (def ^:dynamic *tokens* (atom []))
 (def ^:dynamic *pos*    (atom 0))
 
@@ -53,6 +53,9 @@
                      :found tok}))))
 
 (defn- expect
+  "Recibe un tipo a esperar, opcionalmente un valor (para palabras reservadas)
+  y si coincide avanza, tira error a lo contrario"
+
   ([tipo msg]
    (if (check tipo)
      (advance)
@@ -63,9 +66,10 @@
      (syntax-error! (str "Se esperaba " msg)))))
 
 ;; ─────────────────────────────────────────────
-;; Reglas — todas se anuncian arriba por mutua recursión
+;; Reglas
 ;; ─────────────────────────────────────────────
 
+;; Esto hace que sea visible para todas las funciones
 (declare parse-program
          parse-statement-list
          parse-statement
@@ -82,13 +86,8 @@
          statement-start?
          parse-primary)
 
-;; ─────────────────────────────────────────────
-;; Stubs temporales (los reemplazas uno por uno)
-;; ─────────────────────────────────────────────
-
 (defn- parse-var-decl
-  "V → v d = E
-   (el ';' final NO se pide aquí — lo pone parse-statement, regla T → V;)"
+  "V → v d = E"
   []
   (expect :keyword    "var" "palabra reservada 'var'")
   (expect :identifier        "nombre de la variable después de 'var'")
@@ -135,11 +134,10 @@
 
 
 (defn- parse-return
-  "Parsea el return SIN consumir el ';' final.
-   El ';' lo pone parse-function-statement (regla C → X;)."
+  "Parsea el return SIN consumir el ; final.
+   El ';' lo pone parse-function-statement."
   []
   (expect :keyword "return" "palabra reservada 'return'")
-  ;; r E | r : si lo que sigue NO es ';', entonces hay expresión.
   (when-not (check :punctuation ";")
     (parse-expression)))
 
@@ -153,7 +151,7 @@
 
 
 (defn- parse-function-statement
-  "Mini-dispatcher para C: como parse-statement, pero agrega 'return'."
+  "Como parse-statement, pero agrega 'return'."
   []
   (cond
     (check :keyword "return")
@@ -241,20 +239,12 @@
     :else
     (syntax-error! "expresión inválida (se esperaba número, identificador o '(' )")))
 
-;; ─────────────────────────────────────────────
-;; S → L
-;; (parsea la lista de estatutos y verifica que no sobren tokens)
-;; ─────────────────────────────────────────────
 
 (defn- parse-program
   []
   (parse-statement-list)
   (when-not (at-end?)
     (syntax-error! "tokens sobrantes")))
-
-;; ─────────────────────────────────────────────
-;; Helper FIRST(T): tokens que pueden empezar un estatuto.
-;; ─────────────────────────────────────────────
 
 (defn- statement-start?
   "True si el token actual es uno de: var, if, while, function, identifier."
@@ -266,27 +256,12 @@
       (check :identifier)))
 
 
-;; ─────────────────────────────────────────────
-;; L → T L | T   (uno o más estatutos)
-;; (parsea uno y luego repite mientras siga habiendo)
-;; ─────────────────────────────────────────────
-
 (defn- parse-statement-list
   []
   (parse-statement)
   (while (statement-start?)
     (parse-statement)))
 
-;; ─────────────────────────────────────────────
-;; T → V; | A; | I | W | F
-;; (dispatcher: mira el primer token y elige qué regla aplicar)
-;;
-;; OJO:
-;;   - V; y A;  →  pides el ';' aquí, después de parsear V o A.
-;;   - I, W, F  →  no llevan ';', son bloques con {}.
-;;   - Solo usa `check`, NO `match` (no consumas el token, eso lo hace
-;;     la función que llamas adentro).
-;; ─────────────────────────────────────────────
 
 (defn- parse-statement
   []
@@ -313,12 +288,12 @@
 
 
 ;; ─────────────────────────────────────────────
-;; API pública
+;; Publico
 ;; ─────────────────────────────────────────────
 
 (defn parse
   "Recibe el vector de tokens del lexer y devuelve
-     {:ok? true  :errors []}                       si todo va bien
+     {:ok? true  :errors []}                       si todo fue bien
      {:ok? false :errors [{...info del error...}]} si hay error sintáctico."
   [tokens]
   (reset! *tokens* (vec tokens))

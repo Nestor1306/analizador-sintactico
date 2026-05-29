@@ -1,0 +1,54 @@
+if (24 == 3) {
+    if (good(with) > grace) {
+        while ((there) == your(thou)) {
+            your = (grace / 92);
+            if (86 == 17) {
+                if (good(salt) > 67) {
+                    var their = (with * with(beseech, scape, shadow));
+                }
+            } else {
+                good = (((grace) / scape) / grace);
+            }
+        }
+    } else {
+        if (29 > with) {
+            their = ((beseech * 48) * beseech(caliban));
+            function sandys(tricks) {
+                var horse = (horse(sufferd, dispatchd, swearing, fortune) + (9 * 41));
+                good = (((((((((((((83 / scape(says)) * tricks) / swearing(from)) / fortune) / 51) / grace(them, display, bring, soul, bound)) * 11) * grace) * display) / (your)) + good) - display) + 73);
+            }
+        }
+    }
+    scape = ((caliban * them) + with);
+    grace = (25 - ((with) / sandys));
+}
+function wretch(thersites) {
+    if (scape != them) {
+        return ((((with * bound(wrong, birth, polonius)) / (says)) / from) * grace);
+    } else {
+        if (tricks(more) != swearing) {
+            var great = (0 / swearing);
+        } else {
+            thersites = 91;
+            return (good - ((63 / sufferd) * dispatchd));
+        }
+        tricks = (((grace * soul) / fortune) + shadow);
+        if (says != tricks) {
+            if (with != birth(weaken, queen)) {
+                return ((says * (22)) + (wrong / fortune));
+            } else {
+                good = (thersites + (good(gracious) / grace));
+                if (salt != their) {
+                    return ((7 - 2) - says);
+                }
+                return (14 + (good(anyone) / scape));
+            }
+            wrong = (bound + good);
+            return (((soul * dispatchd) * says) / soul);
+        } else {
+            more = (((((((((wrong) * 75) * bring) * grace(well)) - ((52) / (thou))) + ((queen / gracious) / anyone(mine, have))) - caliban) + (have(fight) * sufferd)) + great(touch));
+        }
+        return (((((((((86))) + (((there) / beseech) / weaken)) + (((birth * 13) / more(jade)) * them)) + shadow) + ((25 * horse) * 8)) + 23) + 17);
+    }
+    var lieutenant = mine;
+}

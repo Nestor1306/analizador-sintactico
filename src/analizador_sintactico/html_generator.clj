@@ -1,7 +1,14 @@
 (ns analizador-sintactico.html-generator
     (:require [clojure.string :as str]))
 
+"Este archivo se encarga principalmente de generar un archivo html
+para visualizar los errores obtenidos, ninguno en el caso perfecto,
+de un archivo como output"
+
 (defn escape-html [text]
+  "Remplaza caracteres especiales por su manera
+  correcta de incluirlos en html"
+
       (-> text
           (str/replace "&" "&amp;")
           (str/replace "<" "&lt;")
@@ -46,6 +53,10 @@
       </style>")
 
 (defn tokens->html [tokens]
+  "Por cada token obtenido de la lista despues del parser,
+  se procesa y se añade a un string final que es el desplegado
+  en la pagina de HTML"
+
       (loop [remaining tokens
              result    []
              line      1]
@@ -64,8 +75,10 @@
 
 
 (defn generate [tokens errors filename]
+  "Funcion que genera el archivo HTML completo y lo exporta
+  con su extension en el root del txt. Este metodo se llama desde process file en main."
   (let [ok?       (empty? errors)
-        err       (first errors)
+        err       (first errors) ;Solo el primer error pero puede estar bien un bucle para todos. Aunque... se suele mostrar el primero?
         error-msg (when-not ok?
                     (str "<div class=\"error-banner\">"
                          "&#9888; Error en línea "

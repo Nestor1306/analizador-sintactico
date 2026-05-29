@@ -2,7 +2,7 @@
     (:require [clojure.string :as str]))
 
 ;; ─────────────────────────────────────────────
-;; Token types
+;; Tipos de Tokens
 ;; ─────────────────────────────────────────────
 
 (def token-types
@@ -10,39 +10,39 @@
     :assignment :punctuation :unknown})
 
 ;; ─────────────────────────────────────────────
-;; Reserved words
+;; Palabras reservadas
 ;; ─────────────────────────────────────────────
 
 (def reserved-words
   #{"var" "if" "else" "while" "function" "return"})
 
 ;; ─────────────────────────────────────────────
-;; Token patterns  (order matters — most specific first)
+;; Patrones de tokens (Regex)
 ;; ─────────────────────────────────────────────
 
 (def token-patterns
-  [;; Multi-char logical operators before single-char ones
+  [;; Caracteres multiples antes de individuales
    [:logical-op   #"^(?:==|!=|<=|>=)"]
-   ;; Single-char logical operators
+   ;; Operadores logicos de un caracter
    [:logical-op   #"^[<>]"]
-   ;; Assignment (single =, not ==)
+   ;; Asignacion (un solo caracter sin '==')
    [:assignment   #"^="]
-   ;; Algebraic operators
+   ;; Operadores algebraicos
    [:operator     #"^[+\-*/]"]
-   ;; Punctuation
+   ;; Puntuacion
    [:punctuation  #"^[(){};,]"]
-   ;; Numbers — decimal before integer to avoid partial match
+   ;; Numberos (decimal antes de entero)
    [:number       #"^\d+\.\d+"] ;ORDEN IMPORTA
    [:number       #"^\d+"]
-   ;; Identifiers / keywords (start with letter, then letters+digits)
+   ;; Identificadores
    [:identifier   #"^[a-zA-Z][a-zA-Z0-9]*"]])
 
 ;; ─────────────────────────────────────────────
-;; Lex errors
+;; Errores lexicos
 ;; ─────────────────────────────────────────────
 
 (defn lex-error
-      "Builds a lex-error map for an unrecognised character."
+      "Construye un mapa cuando reconoce un caracter no definido"
       [ch position line col]
       {:type  :lex-error
        :value (str ch)
@@ -52,12 +52,13 @@
        :col   col})
 
 ;; ─────────────────────────────────────────────
-;; Single-token scanner
+;; Scanner de un solo token
 ;; ─────────────────────────────────────────────
 
 (defn- try-match
-       "Tries every pattern against the remaining source string.
-        Returns [token-type matched-string] or nil."
+       "Intenta todo patron con el strin restante hasta que encuentra algun.
+        Regresa nil si no encuentra nada, una tupla si si lo hace"
+
        [source]
        (some (fn [[ttype pattern]] ;Solo descomprime el par sin la sintaxis larga
                  (when-let [m (re-find pattern source)]
@@ -65,14 +66,14 @@
              token-patterns))
 
 (defn- classify-identifier
-       "Upgrades :identifier to :keyword when the lexeme is a reserved word."
+       "Cambia el tipo del token si se trata de una palabra reservada"
        [ttype lexeme]
        (if (and (= ttype :identifier) (reserved-words lexeme))
          :keyword
          ttype))
 
 ;; ─────────────────────────────────────────────
-;; Tokenizer  →  public API
+;; Tokenizer
 ;; ─────────────────────────────────────────────
 
 (defn tokenize
@@ -118,50 +119,14 @@
                                          (conj tokens token) ; Lo agrega a la lista de tokens
                                          errors))
 
-                             ;; ── Unknown character — record error, skip 1 char ─────
+                             ;; Caracter desconocido
                              (let [err (lex-error ch position line col)]
                                   (recur (subs remaining 1) (inc position)
                                          line (inc col) tokens
                                          (conj errors err)))))))))
 
-;; ─────────────────────────────────────────────
-;; Convenience helpers (used by the parser + HTML gen)
-;; ─────────────────────────────────────────────
-
-(defn lex-ok?
-      "Returns true when tokenization produced zero errors."
-      [lex-result]
-      (empty? (:errors lex-result)))
 
 (defn token-list
       "Extracts just the token vector from a tokenize result."
       [lex-result]
       (:tokens lex-result))
-
-;; ─────────────────────────────────────────────
-;; HTML helpers (used by the generator)
-;; ─────────────────────────────────────────────
-
-(defn escape-html
-      "Escapes the five XML/HTML special characters."
-      [text]
-      (-> text
-          (str/replace "&"  "&amp;")
-          (str/replace "<"  "&lt;")
-          (str/replace ">"  "&gt;")
-          (str/replace "\"" "&quot;")
-          (str/replace "'"  "&#39;")))
-
-(defn token-css-class
-      "Maps a token type keyword to a CSS class name string."
-      [token-type]
-      (case token-type
-            :keyword      "keyword"
-            :identifier   "identifier"
-            :number       "number"
-            :operator     "operator"
-            :logical-op   "logical-op"
-            :assignment   "assignment"
-            :punctuation  "punctuation"
-            :lex-error    "error"
-            "plain"))
