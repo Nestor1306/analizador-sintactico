@@ -2,21 +2,20 @@
 
 Un analizador sintactico hecho en Clojure
 
-# Integrantes
+## Integrantes
 
--Emiliano Garcia
--Nestor Huidobro
--Alexis Alva
+- Emiliano Garcia
+- Nestor Huidobro
+- Alexis Alva
 
-# Como correrlo
+## Como correrlo
 
 Estando en la carpeta del proyecto, ejecuta:
 
-#!/bin/bash
+```bash
 lein run resources/sample/<nombre_del_texto.txt>
+```
 
-Esto creara un archivo HTML que despliega el texto resaltado por tokens y una alerta de eror en caso de presentar algun error.
-
-Corre el siguiente comando para abrir el archivo HTML inmediatamente:
-#!/bin/bash
-open <archivo_HTML.html>
+```bash
+open resources/sample/<nombre_del_texto.html>
+```
