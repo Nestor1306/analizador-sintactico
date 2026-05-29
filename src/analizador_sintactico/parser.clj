@@ -94,8 +94,10 @@
   (expect :assignment        "signo '=' en la declaración")
   (parse-expression))
 
-(defn- parse-expression []
-  (expect :number "numero")) ; Temporal
+(defn- parse-expression
+  "E → B"
+  []
+  (parse-comparison))
 
 (defn- parse-assignment []
   (expect :identifier "un identificador")
@@ -184,10 +186,59 @@
   (expect :punctuation "}" "'}' al cerrar cuerpo de la función"))
 
 
-(defn- parse-comparison     [] (throw (Exception. "TODO parse-comparison")))
-(defn- parse-addition       [] (throw (Exception. "TODO parse-addition")))
-(defn- parse-multiplication [] (throw (Exception. "TODO parse-multiplication")))
-(defn- parse-primary        [] (throw (Exception. "TODO parse-primary")))
+(defn- parse-comparison
+  "B → M Y
+   Y → < M Y | > M Y | == M Y | != M Y | λ"
+  []
+  (parse-addition)
+  (while (or (match :logical-op "<")
+             (match :logical-op ">")
+             (match :logical-op "==")
+             (match :logical-op "!="))
+    (parse-addition)))
+
+(defn- parse-addition
+  "M → N U
+   U → + N U | - N U | λ"
+  []
+  (parse-multiplication)
+  (while (or (match :operator "+")
+             (match :operator "-"))
+    (parse-multiplication)))
+
+(defn- parse-multiplication
+  "N → H D
+   D → * H D | / H D | λ"
+  []
+  (parse-primary)
+  (while (or (match :operator "*")
+             (match :operator "/"))
+    (parse-primary)))
+
+(defn- parse-primary
+  "H → ( E ) | n | d K
+   K → ( J ) | λ
+   J → E A2 | λ
+   A2 → , E A2 | λ"
+  []
+  (cond
+    (match :punctuation "(")
+    (do (parse-expression)
+        (expect :punctuation ")" "')' al cerrar la expresión"))
+
+    (match :number)
+    nil
+
+    (match :identifier)
+    (when (match :punctuation "(")
+      (when-not (check :punctuation ")")
+        (parse-expression)
+        (while (match :punctuation ",")
+          (parse-expression)))
+      (expect :punctuation ")" "')' al cerrar la llamada"))
+
+    :else
+    (syntax-error! "expresión inválida (se esperaba número, identificador o '(' )")))
 
 ;; ─────────────────────────────────────────────
 ;; S → L
