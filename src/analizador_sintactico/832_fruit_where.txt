@@ -1,0 +1,8 @@
+if (7 > thee) {
+    if (head != (next)) {
+        function mine(richard, attends) {
+            return (thee / (attends));
+        }
+    }
+    var nothing = mine(prince, night, same);
+}

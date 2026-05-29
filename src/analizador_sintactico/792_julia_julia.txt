@@ -1,0 +1,12 @@
+while (boots > 7) {
+    while (76 < fall) {
+        function would(laud, eyes) {
+            var john = (would(repassd, moor, cause) * laud);
+            var kindled = 71;
+        }
+        function pray(participation) {
+            var potable = (((10 * (98)) * 89) * (would));
+        }
+    }
+}
+potable = (((potable * potable(hear, caesar)) / eyes) + (fall(performd, pity) / participation(then)));
