@@ -291,15 +291,15 @@
 ;; Publico
 ;; ─────────────────────────────────────────────
 
-(defn parse
+(defn parse [tokens]
   "Recibe el vector de tokens del lexer y devuelve
      {:ok? true  :errors []}                       si todo fue bien
      {:ok? false :errors [{...info del error...}]} si hay error sintáctico."
-  [tokens]
-  (reset! *tokens* (vec tokens))
-  (reset! *pos*    0)
-  (try
-    (parse-program)
-    {:ok? true :errors []}
-    (catch clojure.lang.ExceptionInfo e
-      {:ok? false :errors [(ex-data e)]})))
+  (binding [*tokens* (atom (vec tokens))
+            *pos* (atom 0)]
+    (try
+      (parse-program)
+      {:ok? true :errors []}
+      (catch clojure.lang.ExceptionInfo e
+        {:ok? false :errors [(ex-data e)]}))))
+

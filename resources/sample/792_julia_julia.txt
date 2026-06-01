@@ -1,4 +1,4 @@
-while (boots > 3) {
+while (boots > ) {
     while (76 < fall) {
         function would(laud, eyes) {
             var john = (would(repassd, moor, cause) * laud);
